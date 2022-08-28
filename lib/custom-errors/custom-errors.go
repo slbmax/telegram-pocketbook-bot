@@ -1,6 +1,9 @@
 package custom_errors
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 func Wrap(msg string, err error) error {
 	return fmt.Errorf("%s: %w", msg, err)
@@ -12,4 +15,8 @@ func WrapIfErr(msg string, err error) error {
 	}
 
 	return Wrap(msg, err)
+}
+
+func New(message string) error {
+	return errors.New(message)
 }

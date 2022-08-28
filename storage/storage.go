@@ -1,15 +1,35 @@
 package storage
 
+import (
+	"crypto/sha1"
+	"fmt"
+	errors "github.com/slbmax/telegram-pocketbook-bot/lib/custom-errors"
+	"io"
+)
+
 type Storage interface {
 	SaveNote(note *Note) error
 	GetAllNotes(userName string) (*[]Note, error)
-	GetNoteById(userName string, id int) (*Note, error)
-	GetNotesCount() int
-	RemoveNote(id int) error
-	IsNoteExists(note *Note)
+	RemoveNote(note *Note) error
+	IsNoteExists(note *Note) (bool, error)
 }
 
 type Note struct {
+	ID       int
 	Value    string
 	UserName string
+}
+
+func (n Note) Hash() (string, error) {
+	hash := sha1.New()
+
+	if _, err := io.WriteString(hash, n.Value); err != nil {
+		return "", errors.Wrap("can't calculate hash", err)
+	}
+
+	if _, err := io.WriteString(hash, n.UserName); err != nil {
+		return "", errors.Wrap("can't calculate hash", err)
+	}
+
+	return fmt.Sprintf("%x", hash.Sum(nil)), nil
 }
