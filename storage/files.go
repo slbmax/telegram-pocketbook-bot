@@ -14,8 +14,6 @@ type FileStorage struct {
 
 const defaultPerm = 0774
 
-var ErrNoSavedNotes = errors.New("no saved notes")
-
 func New(basePath string) Storage {
 	return FileStorage{basePath: basePath}
 }
@@ -102,9 +100,12 @@ func (f FileStorage) IsNoteExists(note *Note) (bool, error) {
 
 	path := filepath.Join(f.basePath, note.UserName, fileName)
 
-	_, err = os.Stat(path)
-	if err != nil {
+	switch _, err = os.Stat(path); {
+	case errors.Is(err, os.ErrNotExist):
+		return false, nil
+	case err != nil:
 		msg := fmt.Sprintf("can't check if file %s exists", path)
+
 		return false, errors.Wrap(msg, err)
 	}
 

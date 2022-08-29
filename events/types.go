@@ -1,8 +1,8 @@
 package events
 
 const (
-	Unknown Type = iota
-	Message
+	UnknownEvent Type = iota
+	MessageEvent
 )
 
 type Fetcher interface {
@@ -16,7 +16,8 @@ type Processor interface {
 type Type int
 
 type Event struct {
-	Type Type
-	Text string
-	Meta interface{}
+	Type     Type
+	Text     string
+	ChatID   int
+	Username string
 }

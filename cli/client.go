@@ -21,8 +21,8 @@ type Client struct {
 	client   http.Client
 }
 
-func New(host, token string) Client {
-	return Client{
+func New(host, token string) *Client {
+	return &Client{
 		host:     host,
 		basePath: "bot" + token,
 		client:   http.Client{},
@@ -33,6 +33,7 @@ func (c *Client) Updates(limit, offset int) ([]Update, error) {
 	query := url.Values{}
 	query.Add("limit", strconv.Itoa(limit))
 	query.Add("offset", strconv.Itoa(offset))
+	query.Add("parse_mode", "Markdown")
 
 	rawData, err := c.sendRequest(getUpdatesMethod, query)
 	if err != nil {
@@ -52,6 +53,7 @@ func (c *Client) SendMessage(chatID int, text string) error {
 	query := url.Values{}
 	query.Add("chat_id", strconv.Itoa(chatID))
 	query.Add("text", text)
+	query.Add("parse_mode", "Markdown")
 
 	_, err := c.sendRequest(sendMessageMethod, query)
 
@@ -67,10 +69,12 @@ func (c *Client) sendRequest(method string, query url.Values) (data []byte, err 
 		Path:   path.Join(c.basePath, method),
 	}
 
-	request, err := http.NewRequest(http.MethodGet, url.String(), nil)
+	request, err := http.NewRequest(http.MethodPost, url.String(), nil)
 	if err != nil {
 		return nil, err
 	}
+
+	request.URL.RawQuery = query.Encode()
 
 	response, err := c.client.Do(request)
 	if err != nil {
@@ -78,8 +82,6 @@ func (c *Client) sendRequest(method string, query url.Values) (data []byte, err 
 	}
 
 	defer response.Body.Close()
-
-	request.URL.RawQuery = query.Encode()
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {

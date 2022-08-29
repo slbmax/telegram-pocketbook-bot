@@ -14,8 +14,9 @@ type Storage interface {
 	IsNoteExists(note *Note) (bool, error)
 }
 
+var ErrNoSavedNotes = errors.New("no saved notes")
+
 type Note struct {
-	ID       int
 	Value    string
 	UserName string
 }
