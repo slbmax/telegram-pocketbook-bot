@@ -29,7 +29,7 @@ func New(host, token string) *Client {
 	}
 }
 
-func (c *Client) Updates(limit, offset int) ([]Update, error) {
+func (c *Client) FetchUpdates(limit, offset int) ([]Update, error) {
 	query := url.Values{}
 	query.Add("limit", strconv.Itoa(limit))
 	query.Add("offset", strconv.Itoa(offset))

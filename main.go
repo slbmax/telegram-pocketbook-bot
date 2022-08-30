@@ -21,7 +21,7 @@ func main() {
 		storage.New(storagePath),
 	)
 
-	log.Println("Lets go")
+	log.Println("Starting telegram bot...")
 
 	consumer := consumer.New(eventsProcessor, eventsProcessor, batchSize)
 

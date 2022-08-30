@@ -21,8 +21,9 @@ func New(fetcher events.Fetcher, processor events.Processor, batchSize int) Cons
 }
 
 func (e EventConsumer) Start() error {
-	for {
+	log.Println("Bot started\nListening to updates...")
 
+	for {
 		events, err := e.fetcher.Fetch(e.batchSize)
 		if err != nil {
 			log.Printf("[ERR] consumer: %s", err.Error())

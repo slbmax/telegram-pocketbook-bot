@@ -22,9 +22,9 @@ func New(client *cli.Client, storage storage.Storage) *EventProcessor {
 }
 
 func (p *EventProcessor) Fetch(limit int) ([]Event, error) {
-	updates, err := p.tg.Updates(limit, p.offset)
+	updates, err := p.tg.FetchUpdates(limit, p.offset)
 	if err != nil {
-		return nil, errors.Wrap("can`t get events", err)
+		return nil, errors.Wrap("can`t fetch events", err)
 	}
 
 	if len(updates) == 0 {
@@ -45,34 +45,26 @@ func (p *EventProcessor) Fetch(limit int) ([]Event, error) {
 func (p *EventProcessor) Process(event Event) error {
 	switch event.Type {
 	case MessageEvent:
-		return p.processMessage(event)
+		return p.processCommand(event.Text, event.Username, event.ChatID)
 	default:
 		return errors.Wrap("can`t process message", ErrUnknownEventType)
 	}
 }
 
-func (p EventProcessor) processMessage(event Event) error {
-	if err := p.processCommand(event.Text, event.Username, event.ChatID); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func updateToEvent(update cli.Update) Event {
 	updateType := fetchType(update)
 
-	res := Event{
+	event := Event{
 		Type: updateType,
 		Text: fetchText(update),
 	}
 
 	if updateType == MessageEvent {
-		res.ChatID = update.Message.Chat.ID
-		res.Username = update.Message.From.Username
+		event.ChatID = update.Message.Chat.ID
+		event.Username = update.Message.From.Username
 	}
 
-	return res
+	return event
 }
 
 func fetchText(upd cli.Update) string {
