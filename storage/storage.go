@@ -17,14 +17,15 @@ type Storage interface {
 var ErrNoSavedNotes = errors.New("no saved notes")
 
 type Note struct {
-	Value    string
-	UserName string
+	Description string
+	Value       string
+	UserName    string
 }
 
 func (n Note) Hash() (string, error) {
 	hash := sha1.New()
 
-	if _, err := io.WriteString(hash, n.Value); err != nil {
+	if _, err := io.WriteString(hash, n.Description); err != nil {
 		return "", errors.Wrap("can't calculate hash", err)
 	}
 

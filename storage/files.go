@@ -55,7 +55,7 @@ func (f FileStorage) GetAllNotes(userName string) (notes *[]Note, err error) {
 
 	files, err := os.ReadDir(filePath)
 	if err != nil {
-		return nil, err
+		return nil, ErrNoSavedNotes
 	}
 
 	if len(files) == 0 {
