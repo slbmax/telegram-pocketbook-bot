@@ -10,11 +10,15 @@ import (
 type Storage interface {
 	SaveNote(note *Note) error
 	GetAllNotes(userName string) (*[]Note, error)
+	GetByDescription(userName, description string) (*Note, error)
 	RemoveNote(note *Note) error
 	IsNoteExists(note *Note) (bool, error)
 }
 
-var ErrNoSavedNotes = errors.New("no saved notes")
+var (
+	ErrNoSavedNotes = errors.New("no saved notes")
+	ErrNoNote       = errors.New("no such note")
+)
 
 type Note struct {
 	Description string

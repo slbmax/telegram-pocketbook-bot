@@ -76,6 +76,35 @@ func (f FileStorage) GetAllNotes(userName string) (notes *[]Note, err error) {
 	return &result, nil
 }
 
+func (f FileStorage) GetByDescription(userName, description string) (result *Note, err error) {
+	defer func() { err = errors.WrapIfErr("can't get note", err) }()
+
+	filePath := filepath.Join(f.basePath, userName)
+
+	files, err := os.ReadDir(filePath)
+	if err != nil {
+		return nil, ErrNoSavedNotes
+	}
+
+	if len(files) == 0 {
+		return nil, ErrNoSavedNotes
+	}
+
+	fname, err := fileName(&Note{UserName: userName, Description: description})
+	if err != nil {
+		return nil, err
+	}
+
+	note, err := f.decodeNote(filepath.Join(filePath, fname))
+	if err != nil {
+		err = ErrNoNote
+	}
+
+	result = &note
+
+	return
+}
+
 func (f FileStorage) RemoveNote(note *Note) error {
 	fileName, err := fileName(note)
 	if err != nil {

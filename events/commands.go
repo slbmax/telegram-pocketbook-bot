@@ -10,15 +10,18 @@ import (
 )
 
 const (
-	GetCommand    = "/show"
+	ShowCommand   = "/show"
 	HelpCommand   = "/help"
 	StartCommand  = "/start"
 	SaveCommand   = "/add"
 	RemoveCommand = "/remove"
+	GetCommand    = "/get"
 )
 
 func (p EventProcessor) processCommand(text, username string, chatID int) error {
 	log.Printf("got new command: '%s' from '%s'", text, username)
+
+	sendMsg := NewMessageSender(chatID, p.tg)
 
 	isAdd, text := p.isAddCommand(text)
 	if isAdd {
@@ -30,25 +33,35 @@ func (p EventProcessor) processCommand(text, username string, chatID int) error 
 		return p.tg.SendMessage(chatID, msgInvalidCommand)
 	}
 
-	isRemove, description := p.isRemoveCommand(text)
+	isRemove, description := p.isProvidedCommand(text, RemoveCommand)
 	if isRemove {
 		return p.removeNote(chatID, description, username)
 	}
 
 	// Command has invalid format
 	if strings.HasPrefix(text, RemoveCommand) {
-		return p.tg.SendMessage(chatID, msgInvalidCommand)
+		return sendMsg(msgInvalidCommand)
+	}
+
+	isGet, description := p.isProvidedCommand(text, GetCommand)
+	if isGet {
+		return p.getNote(chatID, description, username)
+	}
+
+	// Command has invalid format
+	if strings.HasPrefix(text, GetCommand) {
+		return sendMsg(msgInvalidCommand)
 	}
 
 	switch text {
-	case GetCommand:
+	case ShowCommand:
 		return p.sendAll(chatID, username)
 	case HelpCommand:
 		return p.sendHelp(chatID)
 	case StartCommand:
 		return p.sendHello(chatID)
 	default:
-		return p.tg.SendMessage(chatID, msgUnknownCommand)
+		return sendMsg(msgUnknownCommand)
 	}
 }
 
@@ -66,14 +79,14 @@ func (p EventProcessor) isAddCommand(text string) (bool, string) {
 	return false, text
 }
 
-func (p EventProcessor) isRemoveCommand(text string) (bool, string) {
+func (p EventProcessor) isProvidedCommand(text, command string) (bool, string) {
 	values := strings.Split(text, " ")
 
 	if len(values) != 2 {
 		return false, text
 	}
 
-	if values[0] == RemoveCommand {
+	if values[0] == command {
 		return true, values[1]
 	}
 
@@ -124,6 +137,28 @@ func (p EventProcessor) removeNote(chatID int, description, username string) (er
 
 	return p.tg.SendMessage(chatID, msgRemoved)
 
+}
+
+func (p EventProcessor) getNote(chatID int, description, username string) (err error) {
+	defer func() { err = errors.WrapIfErr("can`t execute get note command", err) }()
+
+	sendMsg := NewMessageSender(chatID, p.tg)
+
+	note, err := p.storage.GetByDescription(username, description)
+
+	if err != nil {
+		if errors.Is(err, storage.ErrNoSavedNotes) {
+			return sendMsg(msgNoSavedNotes)
+		}
+		if errors.Is(err, storage.ErrNoNote) {
+			return sendMsg(msgNotFound)
+		}
+		return sendMsg(msgUndefinedError)
+	}
+
+	noteToString := fmt.Sprintf("***[--- %s ---]***\n%s\n***[--- %s ---]***", note.Description, note.Value, note.Description)
+
+	return sendMsg(noteToString)
 }
 
 func (p EventProcessor) sendAll(chatID int, username string) (err error) {
