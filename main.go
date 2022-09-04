@@ -31,19 +31,12 @@ func main() {
 }
 
 func mustToken() string {
-	//token := flag.String(
-	//	"telegram-bot-token",
-	//	"",
-	//	"token for telegram bot",
-	//)
-	//
-	//flag.Parse()
-
 	token := os.Getenv("TOKEN")
 
 	if token == "" {
 		log.Fatal("token is not provided")
 	}
+	log.Println("Token: " + token)
 
 	return token
 }
