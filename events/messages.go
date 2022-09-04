@@ -1,7 +1,6 @@
 package events
 
 const msgHelp = `I can save and keep you notes. Also I can offer you them to read.
-
 In order to save the note, just send me some description and text/link/etc to it with command /add.
 In order to get all notes, send me command /show, to get specific one - /get; to remove - /remove.
 
