@@ -1,12 +1,12 @@
 package main
 
 import (
-	"flag"
 	"github.com/slbmax/telegram-pocketbook-bot/cli"
 	"github.com/slbmax/telegram-pocketbook-bot/consumer"
 	"github.com/slbmax/telegram-pocketbook-bot/events"
 	"github.com/slbmax/telegram-pocketbook-bot/storage"
 	"log"
+	"os"
 )
 
 const (
@@ -31,17 +31,19 @@ func main() {
 }
 
 func mustToken() string {
-	token := flag.String(
-		"telegram-bot-token",
-		"",
-		"token for telegram bot",
-	)
+	//token := flag.String(
+	//	"telegram-bot-token",
+	//	"",
+	//	"token for telegram bot",
+	//)
+	//
+	//flag.Parse()
 
-	flag.Parse()
+	token := os.Getenv("TOKEN")
 
-	if *token == "" {
+	if token == "" {
 		log.Fatal("token is not provided")
 	}
 
-	return *token
+	return token
 }
