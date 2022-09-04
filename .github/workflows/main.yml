@@ -54,7 +54,7 @@ jobs:
             # Set environment variables
             export BOTTOKEN=${{ secrets.TELEGRAM_TOKEN }}
             # Run a new container from a new image
-            docker run -e TOKEN=BOTTOKEN -d \
+            docker run --env "TOKEN=BOTTOKEN" -d \
             --restart always \
             --name $(echo $CONTAINER_NAME) \
             $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)

@@ -36,7 +36,6 @@ func mustToken() string {
 	if token == "" {
 		log.Fatal("token is not provided")
 	}
-	log.Println("Token: " + token)
 
 	return token
 }
