@@ -22,5 +22,5 @@ const (
 	msgRemoved        = "Removed! 👌"
 	msgNotFound       = "Note not found 😕"
 	msgAlreadyExists  = "You have already have this note in your list 🤗"
-	msgUndefinedError = "Ooopsie, an error. Please, try again 😄"
+	msgUndefinedError = "Ooopsie, an error. Please, tell @slbmax about it and try again 😄"
 )
